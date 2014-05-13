@@ -711,10 +711,15 @@ class PDF::Writer
     xref = []
 
     content = "%PDF-#{@version}\n%\303\242\303\243\303\217\303\223\n"
+
+    if RUBY_VERSION >= '1.9'
+      content.force_encoding("BINARY")
+    end
+
     pos = content.size
 
     objects.each do |oo|
-      cont = oo.to_s.encode!('UTF-8', :invalid => :replace, :undef => :replace)
+      cont = oo.to_s
       content << cont
       xref << pos
       pos += cont.size
@@ -737,6 +742,7 @@ class PDF::Writer
       content << "/ID[<#{@file_identifier}><#{@file_identifier}>]\n"
     end
     content << "  >>\nstartxref\n#{pos}\n%%EOF\n"
+
     content
   end
   alias :to_s :render
